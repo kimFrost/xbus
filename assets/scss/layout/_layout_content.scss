@@ -1,0 +1,10 @@
+
+$_blockName: 'l__content';
+
+@include block($_blockName) {
+	@include contentArea();
+	z-index: 50;
+	@include e(inner) {
+		min-height: 400px;
+	}
+}

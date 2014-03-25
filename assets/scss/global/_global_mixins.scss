@@ -1,0 +1,281 @@
+
+/* Global Mixins */
+
+@mixin clearfix() {
+  &:after {
+      content: ".";
+      display: block; 
+      clear: both;
+      visibility: hidden; 
+      line-height: 0;
+      
+      height: 0;
+    }
+}
+@mixin fill() {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  width: auto;
+  height: auto;
+}
+@mixin ulNav() {
+	& {
+		display: block;
+		padding: 0;
+		margin: 0;
+		li {
+			display: block;
+			float: left;
+			padding: 0;
+			margin: 0;
+			a {
+				display: inline-block;
+			}
+		}
+	}
+}
+@mixin resetBox() {
+  margin: 0;
+  padding: 0;
+}
+@mixin gridNav() {
+  & {
+    ul {
+      padding: 0;
+      margin: 0;
+      display: block;
+      float: left;
+      list-style: none;
+      li {
+        display: block;
+        float: left;
+        > a {
+          display: block;
+          margin: 0;
+          text-decoration: none;
+          color: #000;
+        }
+      }
+    }
+  }
+}
+@mixin fitFloat() {
+  width: 100%;
+  float: left;
+  clear: both;
+}
+
+@mixin hoverActiveStates($_color:#555,$_prop:"color") {
+	@if $_prop == "color" {
+		color: $_color;
+		&:hover {
+			color: lighten($_color,15%);
+		}
+		&:active {
+			color: darken($_color,15%);
+		}
+	}
+	@if $_prop == "background" or $_prop == "background-color"{
+		background-color: $_color;
+		&:hover {
+			background-color: lighten($_color,15%);
+		}
+		&:active {
+			background-color: darken($_color,15%);
+		}
+	}
+}
+
+@mixin onlyInDebug() {
+	@if $debug == true {
+		@content;
+	}
+}
+
+@mixin contentArea($_width: $contentWidth, $_gutterWidth: $gutterWidth) {
+	@include clearfix();
+	width: $_width + ($gutterWidth * 2);
+	padding-left: $_gutterWidth;
+	padding-right: $_gutterWidth;
+	margin: 0 auto;
+	position: relative;
+	@include onlyInDebug() {
+		background-color: rgba(0,0,0,0.1);
+	}
+	@if $useAdaptive == true {
+		@include mediaQueries(tablet){
+			width: $contentWidth-tablet + ($gutterWidth * 2);
+		};
+		@include mediaQueries(mobile){
+			width: $contentWidth-mobile + ($gutterWidth * 2);
+		};
+	}
+}
+
+@mixin containerArea() {
+	@include clearfix();
+	width: $contentWidth + ($gutterWidth * 4);
+	//width: 100%;
+	padding-left: 0;
+	padding-right: 0;
+	//padding-left: $gutterWidth;
+	//padding-right: $gutterWidth;
+	position: relative;
+	//left: 50%;
+	//margin-left: -(($contentWidth + ($gutterWidth * 2)));
+	margin: 0 auto;
+	@if $useAdaptive == true {
+		@include mediaQueries(tablet){
+			width: 100%;
+			margin-left: 0;
+			left: 0;
+		};
+		@include mediaQueries(mobile){
+			width: 100%;
+			margin-left: 0;
+			left: 0;
+		};
+	}
+}
+
+@mixin colomns($colomns: 6) {
+	width: $colomnWidth * $colomns;
+}
+
+// Border-radius mixin
+@mixin border-radius($topright: 0, $bottomright: 0, $bottomleft: 0, $topleft: 0) {
+  -webkit-border-top-right-radius: $topright;
+  -webkit-border-bottom-right-radius: $bottomright;
+  -webkit-border-bottom-left-radius: $bottomleft;
+  -webkit-border-top-left-radius: $topleft;
+  -moz-border-radius-topright: $topright;
+  -moz-border-radius-bottomright: $bottomright;
+  -moz-border-radius-bottomleft: $bottomleft;
+  -moz-border-radius-topleft: $topleft;
+  border-top-right-radius: $topright;
+  border-bottom-right-radius: $bottomright;
+  border-bottom-left-radius: $bottomleft;
+  border-top-left-radius: $topleft;
+  /* .background-clip(padding-box);*/
+}
+
+// Single gradient mixin
+@mixin gradient($color: #F5F5F5, $start: #EEE, $stop: #FFF, $type: vertical, $startPoint: 0%, $endPoint: 100%, $ie9Fallback: false) {
+  @if $type == vertical {
+    background: $color;
+    background: -moz-linear-gradient(top, $start $startPoint, $stop $endPoint);
+    background: -webkit-gradient(linear, left top, left bottom, color-stop($startPoint, $start), color-stop($endPoint, $stop));
+    background: -webkit-linear-gradient(top, $start $startPoint, $stop $endPoint);
+    background: -o-linear-gradient(top, $start $startPoint, $stop $endPoint);
+    background: -ms-linear-gradient(top, $start $startPoint, $stop $endPoint);
+    background: linear-gradient(to bottom, $start $startPoint, $stop $endPoint);
+	@if $ie9Fallback == true {
+		filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#{$start}', endColorstr='#{$stop}',GradientType=0 );
+	}
+    @media screen and (min-width:0\0) {
+       
+    }
+  }
+  @if $type == horizontal {
+    background: $color;
+    background: -moz-linear-gradient(left, $start $startPoint, $stop $endPoint);
+    background: -webkit-gradient(linear, left top, right top, color-stop($startPoint, $start), color-stop($endPoint, $stop));
+    background: -webkit-linear-gradient(left, $start $startPoint, $stop $endPoint);
+    background: -o-linear-gradient(left, $start $startPoint, $stop $endPoint);
+    background: -ms-linear-gradient(left, $start $startPoint, $stop $endPoint);
+    background: linear-gradient(to right, $start $startPoint, $stop $endPoint);
+	@if $ie9Fallback == true {
+    	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#{$start}', endColorstr='#{$stop}',GradientType=1 );
+	}
+    @media screen and (min-width:0\0) {
+       
+    }
+  }
+	@if $type == radial {
+		background: $color;
+		background: -moz-radial-gradient(center, ellipse cover,  $start $startPoint, $stop $endPoint);
+		background: -webkit-gradient(radial, center center, 0px, center center, $endPoint, color-stop($startPoint,$start), color-stop($endPoint,$stop));
+		background: -webkit-radial-gradient(center, ellipse cover,  $start $startPoint,$stop $endPoint);
+		background: -o-radial-gradient(center, ellipse cover,  $start $startPoint,$stop $endPoint);
+		background: -ms-radial-gradient(center, ellipse cover,  $start $startPoint,$stop $endPoint);
+		background: radial-gradient(ellipse at center,  $start $startPoint,$stop $endPoint);
+		@if $ie9Fallback == true {
+			filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='$start', endColorstr='$stop',GradientType=1 );
+		}
+		@media screen and (min-width:0\0) {
+
+		}
+	}
+}
+
+
+// Keyframe mixin
+@mixin keyframe($animation_name) {
+    @-webkit-keyframes $animation_name {
+        @content;
+    }
+ 
+    @-moz-keyframes $animation_name {
+        @content;
+    }
+ 
+    @-o-keyframes $animation_name {
+        @content;
+    }
+ 
+    @keyframes $animation_name {
+        @content;
+    }
+}
+
+// Animation mixin
+@mixin animation($delay, $duration, $animation) {
+    -webkit-animation-delay: $delay;
+    -webkit-animation-duration: $duration;
+    -webkit-animation-name: $animation;
+    -webkit-animation-fill-mode: forwards; /* this prevents the animation from restarting! */
+ 
+    -moz-animation-delay: $delay;
+    -moz-animation-duration: $duration;
+    -moz-animation-name: $animation;
+    -moz-animation-fill-mode: forwards; /* this prevents the animation from restarting! */
+ 
+    -o-animation-delay: $delay;
+    -o-animation-duration: $duration;
+    -o-animation-name: $animation;
+    -o-animation-fill-mode: forwards; /* this prevents the animation from restarting! */
+ 
+    animation-delay: $delay;
+    animation-duration: $duration;
+    animation-name: $animation;
+    animation-fill-mode: forwards; /* this prevents the animation from restarting! */
+}
+
+@mixin noUserSelect() {
+	user-select: none;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	-o-user-select: none;
+}
+
+@mixin backgroundTransparentColor($_color, $opacity) {
+	@if $_color != transparent {
+		background: $_color; /* The Fallback */
+		background: rgba($_color, $opacity);
+	}
+}
+
+@function returnContrastBlackWhite($_color) {
+	$_alpha: lightness($_color);
+	//@debug $_alpha;
+	@if ($_alpha > 50%) {
+		@return rgba(0,0,0,0.8);
+	}
+	@else {
+		@return rgba(255,255,255,0.8);
+	}
+}

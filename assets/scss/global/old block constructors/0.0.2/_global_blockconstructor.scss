@@ -1,0 +1,470 @@
+
+// Block Element Modifier Constructor v0.0.2
+
+$_blockNameList: ();
+$_blockName: "" !global;
+$_blockSelector: () !global;
+$_blockSelector_list_single: ();
+$_constructorList: () !global;
+$_blockSelector: () !global;
+
+$extendMode: false !global;
+$extendModePoints: () !global;
+
+
+@mixin block($name) {
+	$name: unquote($name);
+	// Reset
+	$_constructorList: () !global;
+	$_currentModifierDepth: 0 !global;
+
+	$_blockSelector: (".#{$name}") !global;
+	$_found: false;
+	$_blockName: $name !global;
+	$_blockSelector_list_single: append($_blockSelector_list_single, ".#{$_blockName}") !global;
+
+	@if index($_blockNameList, $_blockName) != false {
+		$_found: true;
+	}
+	@if $_found != true {
+
+		// Add Self from construct list
+		$_currentList: ();
+		$_currentList: append($_currentList, $_blockName);
+		$_currentList: append($_currentList, "block");
+		$_currentList: append($_currentList, false);
+		$_constructorList: append($_constructorList, $_currentList) !global;
+
+		@if $extendMode == true {
+			$_extenterList: checkExtender($_currentList);
+			@if length($_extenterList) > 0 {
+				@at-root .#{$_blockName} {
+					@for $i from 1 through length($_extenterList) {
+						$placeholder: nth($_extenterList,$i);
+						@extend %#{$placeholder} !optional;
+					}
+				}
+			}
+			@at-root %UNDEFINED {
+				@content;
+			}
+		}
+		@else {
+			@at-root .#{$_blockName} {
+				@content;
+			}
+		}
+
+		// Remove Self from construct list
+		$_constructorList: remove-nth($_constructorList, length($_constructorList));
+
+		$_blockNameList: append($_blockNameList, $_blockName);
+	}
+	@else {
+		@debug ("---------------------!!!---------------------");
+		@debug ("--> Block namespacing conflict at (#{$name}) <--");
+		@debug ("---------------------!!!---------------------");
+	}
+}
+
+
+// Experimental function
+@function e($name) {
+	$selector: "";
+	$name: unquote($name);
+	@for $i from 1 through length($name) {
+		$_name: nth($name,$i);
+		// Add Self from construct list
+		$_currentList: ();
+		$_currentList: append($_currentList, $_name);
+		$_currentList: append($_currentList, "element");
+		$_currentList: append($_currentList, #{&});
+		$_constructorList: append($_constructorList, $_currentList) !global;
+		$selector: constructSelector();
+		$_constructorList: remove-nth($_constructorList, length($_constructorList));
+	}
+	@return $selector;
+}
+
+
+//elements get appended with "__" and the $name
+@mixin e($name, $prefix: "") {
+	$selector: "";
+	$name: unquote($name);
+
+	@for $i from 1 through length($name) {
+		$_name: nth($name,$i);
+
+		// Add Self from construt list
+		$_currentList: ();
+		$_currentList: append($_currentList, $_name);
+		$_currentList: append($_currentList, "element");
+		$_currentList: append($_currentList, #{&});
+		$_currentList: append($_currentList, $prefix);
+		$_constructorList: append($_constructorList, $_currentList) !global;
+
+		$selector: constructSelector();
+
+		$placeholder: $_name;
+
+		@if $extendMode == true {
+			$_extenterList: checkExtender($_currentList);
+			@if length($_extenterList) > 0 {
+				@at-root #{$selector} {
+					@for $i from 1 through length($_extenterList) {
+						$placeholder: nth($_extenterList,$i);
+						@extend %#{$placeholder} !optional;
+					}
+				}
+			}
+			@at-root %UNDEFINED {
+				@content;
+			}
+		}
+		@else {
+			@at-root #{$selector} {
+				@content;
+				//color: $_constructorList;
+			}
+		}
+
+		// Remove Self from construt list
+		$_constructorList: remove-nth($_constructorList, length($_constructorList));
+	}
+}
+
+//modifiers get appended with "--" and the $name
+@mixin m($name) {
+	$selector: "";
+	$name: unquote($name);
+
+	@for $i from 1 through length($name) {
+		$_name: nth($name,$i);
+
+		// Add Self from construct list
+		$_currentList: ();
+		$_currentList: append($_currentList, $_name);
+		$_currentList: append($_currentList, "modifier");
+		$_currentList: append($_currentList, #{&});
+		$_constructorList: append($_constructorList, $_currentList) !global;
+
+		$selector: constructSelector();
+		$placeholder: $_name;
+
+		@if $extendMode == true {
+			$_extenterList: checkExtender($_currentList);
+			@if length($_extenterList) > 0 {
+				@at-root #{$selector} {
+					@for $i from 1 through length($_extenterList) {
+						$placeholder: nth($_extenterList,$i);
+						@extend %#{$placeholder} !optional;
+					}
+				}
+			}
+			@at-root %UNDEFINED {
+				@content;
+			}
+		}
+		@else {
+			@at-root #{$selector} {
+				@content;
+				//color: $_constructorList;
+			}
+		}
+
+		// Remove Self from construct list
+		$_constructorList: remove-nth($_constructorList, length($_constructorList));
+	}
+}
+
+
+@function constructSelector() {
+	$selectorResult: "";
+
+	// Get last elem/block in constructor list
+	@if (length($_constructorList) > 0) {
+		@for $ii from 1 through length($_constructorList) {
+			$index: length($_constructorList) - $ii + 1;
+			$lastItemList: nth($_constructorList,$index);
+
+			$lastItemList-name: nth($lastItemList, 1);
+			$lastItemList-type: nth($lastItemList, 2);
+			$lastItemList-parent: nth($lastItemList, 3);
+			$lastItemList-prefix: "";
+			@if length($lastItemList) == 4 {
+				$lastItemList-prefix: nth($lastItemList, 4);
+			}
+
+			$isElem: false;
+			$isBlock: false;
+			@if index($lastItemList, "element") == 2 {
+				$isElem: true;
+			}
+			@if index($lastItemList, "block") == 2 {
+				$isBlock: true;
+				//@debug $lastItemList;
+			}
+			@if ($isElem == true) {
+				//@debug $lastItemList;
+			}
+			@if ($isBlock == true) {
+				//@debug $lastItemList;
+			}
+		}
+	}
+
+	$prevType: "";
+	$lastElemOrBlockSelector: "";
+	@for $i from 1 through length($_constructorList) {
+		$item: nth($_constructorList,$i);
+
+		$prevRenderedType: "";
+
+		$isBlock: false;
+		$isElem: false;
+		$isModifer: false;
+		@if index($item, "block") == 2 {
+			$isBlock: true;
+		}
+		@if index($item, "element") == 2 {
+			$isElem: true;
+		}
+		@if index($item, "modifier") == 2 {
+			$isModifer: true;
+		}
+
+		$prevIsModifier: false;
+		@if $prevType == "modifier" {
+			$prevIsModifier: true;
+		}
+		@else {
+			$prevIsModifier: false;
+		}
+
+		$prevIsElem: false;
+		@if $prevType == "element" {
+			$prevIsElem: true;
+		}
+		@else {
+			$prevIsElem: false;
+		}
+
+		$prevIsBlock: false;
+		@if $prevType == "block" {
+			$prevIsBlock: true;
+		}
+		@else {
+			$prevIsBlock: false;
+		}
+
+		// Check for pseudo classes
+		$isPseudoClass: false;
+		$isPseudoHover: false;
+		$isPseudoActive: false;
+		$isPseudoBefore: false;
+		$isPseudoAfter: false;
+		@if index($item, ":hover") == 1 {
+			$isPseudoHover: true;
+			$isPseudoClass: true;
+		}
+		@if index($item, ":active") == 1 {
+			$isPseudoActive: true;
+			$isPseudoClass: true;
+		}
+		@if index($item, ":before") == 1 {
+			$isPseudoBefore: true;
+			$isPseudoClass: true;
+		}
+		@if index($item, "::before") == 1 {
+			$isPseudoBefore: true;
+			$isPseudoClass: true;
+		}
+		@if index($item, ":after") == 1 {
+			$isPseudoAfter: true;
+			$isPseudoClass: true;
+		}
+		@if index($item, "::after") == 1 {
+			$isPseudoAfter: true;
+			$isPseudoClass: true;
+		}
+
+		$name: nth($item, 1);
+		$type: nth($item, 2);
+		$parent: nth($item, 3);
+		$prefix: "";
+		@if length($item) == 4 {
+			$prefix: nth($item, 4);
+		}
+
+		@if $prevIsModifier == true {
+			@if $isElem == true {
+				$selectorResult: $selectorResult + " ";
+			}
+		}
+
+		@if $isBlock == true and length($_constructorList) == 1 {
+			$selectorResult: "."+ $name;
+			$lastElemOrBlockSelector: "."+ $name;
+		}
+		@if $isBlock == true and length($_constructorList) > 1 {
+			$lastElemOrBlockSelector: "."+ $name;
+		}
+		@if $isElem == true and length($_constructorList) > 1 {
+			$lastElemOrBlockSelector: $prefix + "." + $_blockName + "__" + $name;
+		}
+		@if $isModifer == true and $isPseudoClass == false and length($_constructorList) > 1 {
+			$selectorResult: $selectorResult + $lastElemOrBlockSelector + "--" + $name + "";
+		}
+		@if $isModifer == true and $isPseudoClass == true and length($_constructorList) > 1 {
+			$selectorResult: $selectorResult + $lastElemOrBlockSelector + $name + "";
+		}
+		@if $isElem == true and $i == length($_constructorList) {
+			$selectorResult: $selectorResult + $prefix + "." + $_blockName + "__" + $name;
+			$lastElemOrBlockSelector: $prefix + "." + $_blockName + "__" + $name;
+		}
+
+		@if $isBlock == true {
+			$prevType: "block";
+		}
+		@if $isModifer == true {
+			$prevType: "modifier";
+		}
+		@if $isElem == true {
+			$prevType: "element";
+		}
+
+	}
+
+	@return $selectorResult;
+}
+
+
+
+// NOT DEVELOPED FULLY
+@function TRUE_BEM_constructSelector() {
+	$selectorResult: "";
+
+	$modifierDepth: 0;
+	@for $i from 1 through length($_constructorList) {
+		$item: nth($_constructorList,$i);
+
+		$isBlock: false;
+		$isElem: false;
+		$isModifer: false;
+		@if index($item, "block") == 2 {
+			$isBlock: true;
+		}
+		@if index($item, "element") == 2 {
+			$isElem: true;
+		}
+		@if index($item, "modifier") == 2 {
+			$isModifer: true;
+		}
+
+		$name: nth($item, 1);
+		$type: nth($item, 2);
+		$parent: nth($item, 3);
+
+		@if $isBlock == true {
+			$selectorResult: $selectorResult + "."+ $name;
+		}
+		@if $isElem == true {
+			$selectorResult: $selectorResult + $parent + "__" + $name;
+		}
+		@if $isModifer == true {
+			$selectorResult: $selectorResult + $parent + "--" + $name + " "; // Maybe this takes care of nested selectors
+			$modifierDepth: $modifierDepth + 1;
+		}
+	}
+	$_currentModifierDepth: $_currentModifierDepth + 1;
+
+	@return $selectorResult;
+}
+
+
+@mixin enableExtendMode() {
+	$extendMode: true !global;
+}
+@mixin disableExtendMode() {
+	$extendMode: false !global;
+}
+
+
+//@mixin eEx($block: "", $name: "") {
+//	.#{$block}_#{$name} {
+//		@content;
+//	}
+//}
+
+
+@mixin eEx($block: "", $elem: "", $modifier: "") {
+	@if str_length($block) > 0 {
+		$uniquePlaceholderId: unique-id();
+		$extendPointData: ();
+
+		// block - elem/block, modifier, placeholderId
+
+		$extendPointData: append($extendPointData, $block);
+		$extendPointData: append($extendPointData, $elem);
+		$extendPointData: append($extendPointData, $modifier);
+		$extendPointData: append($extendPointData, $uniquePlaceholderId);
+
+		$extendModePoints: append($extendModePoints, $extendPointData) !global;
+
+		%#{$uniquePlaceholderId} {
+			@content;
+		}
+	}
+}
+
+
+@function checkExtender($_currentList) {
+	$_placeholderList: ();
+
+	$name: nth($_currentList, 1);
+	$type: nth($_currentList, 2);
+	$parent: nth($_currentList, 3);
+
+	@for $i from 1 through length($extendModePoints) {
+		$extendModePoint: nth($extendModePoints,$i);
+		$pointBlock: nth($extendModePoint,1);
+		$pointElem: nth($extendModePoint,2);
+		$pointModifier: nth($extendModePoint,3);
+		$pointPlaceholder: nth($extendModePoint,4);
+
+		@if $pointBlock == $_blockName {
+			// Check for elem being the same as block (that would mean that the block name couldn't be used inside the block)
+			//@if str_length($pointElem) > 0 {
+				//@if $pointElem == $pointBlock {
+					// Reset elem for logic
+					//$pointElem: "";
+				//}
+			//}
+
+			@if str_length($pointElem) > 0 and str_length($pointModifier) > 0 {
+				@debug "-----> 1";
+				@debug $parent;
+				@if $pointElem == $parent and $pointModifier == $name {
+					$_placeholderList: append($_placeholderList, $pointPlaceholder);
+				}
+			}
+			@else if str_length($pointElem) > 0 {
+				@debug "-----> 2";
+				@if $pointElem == $name {
+					$_placeholderList: append($_placeholderList, $pointPlaceholder);
+				}
+			}
+			@else if str_length($pointModifier) > 0 {
+				@debug "-----> 3";
+
+			}
+			@else {
+
+
+			}
+		}
+	}
+	// block - elem/block, modifier, placeholderId
+
+	@return $_placeholderList;
+}

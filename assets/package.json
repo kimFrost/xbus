@@ -1,0 +1,23 @@
+{
+	"name": "Xbus",
+	"version": "0.0.1",
+	"private": true,
+	"dependencies": {
+		"grunt": "*",
+		"grunt-contrib-uglify": "*",
+		"grunt-contrib-concat": "*",
+		"grunt-contrib-compass": "*",
+		"grunt-contrib-copy": "*",
+		"grunt-contrib-cssmin": "*",
+		"grunt-contrib-watch": "*",
+		"grunt-contrib-jade": "*",
+		"grunt-styleguide": "*",
+		"grunt-kss": "*",
+		"express":"*",
+		"connect": "*",
+		"marked": "*",
+		"markdown": "*",
+		"grunt-markdown": "*"
+	}
+}
+

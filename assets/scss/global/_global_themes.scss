@@ -1,0 +1,110 @@
+
+/* Global colorset loop */
+
+// Color theme constructor
+$colors: ();
+@mixin newColor($colorset) {
+	$parsedColorset: ();
+	@for $i from 1 through length($colorset) { 
+		$val : nth($colorset,$i);
+		//$numOfAug: length($color);
+		$parsedColorset: append($parsedColorset,$val)
+	} 
+	$colors: append($colors,$parsedColorset);
+}
+
+$themeColor1: transparent;
+$themeColor2: transparent;
+$themeColor3: transparent;
+$themeColor4: transparent;
+$themeColor5: transparent;
+
+@mixin themeThis() {
+	// For each theme
+	@for $i from 1 through length($colors) { 
+		$themeColor1: transparent;
+		$themeColor2: transparent;
+		$themeColor3: transparent;
+		$themeColor4: transparent;
+		$themeColor5: transparent;
+		$colorset: nth($colors,$i);
+		$colorsetName: nth($colorset,1);
+		$numOfColors: length($colorset) - 1;
+		// Inject colorset
+		@for $n from 1 through $numOfColors {
+			@if $n == 1 {
+				$themeColor1: nth($colorset,$n + 1);
+			}
+			@else if $n == 2 {
+				$themeColor2: nth($colorset,$n + 1);
+			}
+			@else if $n == 3 {
+				$themeColor3: nth($colorset,$n + 1);
+			}
+			@else if $n == 4 {
+				$themeColor4: nth($colorset,$n + 1);
+			}
+			@else if $n == 5 {
+				$themeColor5: nth($colorset,$n + 1);
+			}
+		} 
+		&.theme-#{$colorsetName}{
+			@content;
+		}
+	}
+}
+
+
+
+// Theming specific for Collections single boxitem
+$boxColors: ();
+@mixin newBoxColor($colorset) {
+	$parsedColorset: ();
+	@for $i from 1 through length($colorset) {
+		$val : nth($colorset,$i);
+		//$numOfAug: length($color);
+		$parsedColorset: append($parsedColorset,$val)
+	}
+	$boxColors: append($boxColors,$parsedColorset);
+}
+
+$themeColor1: transparent;
+$themeColor2: transparent;
+$themeColor3: transparent;
+$themeColor4: transparent;
+$themeColor5: transparent;
+
+@mixin themeThisBox() {
+	// For each theme
+	@for $i from 1 through length($boxColors) {
+		$themeColor1: transparent;
+		$themeColor2: transparent;
+		$themeColor3: transparent;
+		$themeColor4: transparent;
+		$themeColor5: transparent;
+		$colorset: nth($boxColors,$i);
+		$colorsetName: nth($colorset,1);
+		$numOfColors: length($colorset) - 1;
+		// Inject colorset
+		@for $n from 1 through $numOfColors {
+			@if $n == 1 {
+				$themeColor1: nth($colorset,$n + 1);
+			}
+			@else if $n == 2 {
+				$themeColor2: nth($colorset,$n + 1);
+			}
+			@else if $n == 3 {
+				$themeColor3: nth($colorset,$n + 1);
+			}
+			@else if $n == 4 {
+				$themeColor4: nth($colorset,$n + 1);
+			}
+			@else if $n == 5 {
+				$themeColor5: nth($colorset,$n + 1);
+			}
+		}
+		&.theme-#{$colorsetName}{
+			@content;
+		}
+	}
+}

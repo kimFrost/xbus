@@ -1,0 +1,41 @@
+
+/* Global Variables */
+
+// Options booleans
+$useAdaptive: false !global; // Media Querie mixin will skip if this ain't true
+$debug: false !global; // Show debug features
+$showClasses: false !global; // Show debug features
+$allowCrossAlter: true !global; // Allow modules to alter each other
+
+// Grid variables
+$contentWidth: 960px;
+$gridSize: 12;
+$gridSpacing: 20px; 
+$colomnWidth: $contentWidth / $gridSize;
+$gutterWidth: 20px;
+
+// Media Queries and Labels
+$mediaQueries: mobile 1px 419px, tablet 420px 539px, desktop 539px;
+
+// Media Queries Content Widths
+$contentWidth-mobile: 420px;
+$contentWidth-tablet: 540px;
+$contentWidth-desktop: 620px;
+
+// Layout sizes Variables
+$layoutHeaderHeight: 115px;
+
+// Colors
+$color_black: #000;
+$color_coal: #262626;
+$color_darkgrey: #666;
+$color_white: #fff;
+$color_deepsea: #343f4e;
+
+// Brand Colors
+
+
+
+// Colorsets - Supports up to 5 colors each
+// ({label} {color1} {color2} {color3} {color4} {color5})
+//@include newColor(boxc $midnightBlue $orange $steelBlue transparent $lime);

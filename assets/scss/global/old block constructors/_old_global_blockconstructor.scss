@@ -1,0 +1,158 @@
+$_blockNameList: ();
+
+$_blockName: "" !global;
+
+$_prevElemName: "" !global;
+$_prevModifierName: "" !global;
+$_prevSelector: "" !global;
+$_prevParentSelector: "" !global;
+$_prevParentType: "" !global;
+$_prevType: "" !global;
+
+@mixin block($name) {
+	$_found: false;
+	@for $i from 1 through length($_blockNameList) {
+		$_blockNameInList: nth($_blockNameList,$i);
+		@if $name == $_blockNameInList {
+			$_found: true;
+		}
+	}
+	@if $_found != true {
+		.#{$name} {
+			@at-root {
+				@content;
+			}
+		}
+		$_prevElemName: $name;
+		$_prevSelector: $name;
+		$_prevType: "block";
+		$_blockNameList: append($_blockNameList, $_blockName);
+	}
+	@else {
+		@debug ("---------------------!!!---------------------");
+		@debug ("--> Block namespacing conflict at (#{$name}) <--");
+		@debug ("---------------------!!!---------------------");
+	}
+}
+
+//elements get appended with "__" and the $name
+@mixin e($name, $prefix: "") {
+
+	//@debug length($name);
+
+	// Change for multiple element for , seperated selectors
+
+	//@debug "------------------------------------>Element: " + $name;
+	//@debug "$_prevType: " + $_prevType + "  $_prevParentSelector: " + $_prevParentSelector + "  Parent: " + #{&} ;
+
+	//@debug "_____________________________";
+	//@debug $name;
+	//@debug $_prevElemName;
+	//@debug $_prevModifierName;
+	//@debug $_prevSelector;
+	//@debug "_____________________________";
+	//str_slice
+	//str_index
+	//str_length
+	//str-insert
+	//str-extract
+	//to-upper-case
+	//@debug str_length($selector);
+	//@debug to_upper_case($selector);
+
+	$selector: "";
+
+	$_samelength: false;
+	//@debug str_length($_prevParentSelector)  + " : " + str_length(#{&})  ;
+	@if str_length($_prevParentSelector) == str_length(#{&}) {
+		//@debug "same length";
+		$_samelength: true;
+	}
+
+	$hasPrevSibling: false;
+	@if $_samelength {
+		$hasPrevSibling: true;
+		//@debug "same parent";
+	}
+
+	@if $_prevType == "modifier" and $hasPrevSibling == false {
+		//$selector: #{$_prevElemName}__#{$name};
+		//$selector:  "." + "#{$_blockName}__#{$name}";
+
+		@for $i from 1 through length($name) {
+			$_name: nth($name,$i);
+			@if $i > 1 {
+				$selector: $selector + "," + $prefix + "." + "#{$_blockName}__#{$_name}";
+			}
+			@else {
+				$selector: $prefix + "." + "#{$_blockName}__#{$_name}";
+			}
+		}
+
+		$_prevElemName: #{&};
+		$_prevParentSelector: #{&};
+		$_prevParentType: "modifier";
+		$_prevSelector: $selector;
+		$_prevType: "element";
+		//#{$selector} {
+		#{$selector} {
+			@content;
+		}
+	}
+	@else {
+		@if $hasPrevSibling == true {
+
+		}
+		@else {
+
+		}
+		//$selector: #{$_prevSelector}__#{$name};
+		//$selector: "." + "#{$_blockName}__#{$name}";
+
+		@for $i from 1 through length($name) {
+			$_name: nth($name,$i);
+
+			@if $i > 1 {
+				$selector: $selector + "," + $prefix + "." + "#{$_blockName}__#{$_name}";
+			}
+			@else {
+				$selector:  $prefix + "." + "#{$_blockName}__#{$_name}";
+			}
+		}
+
+		@if $hasPrevSibling == true and $_prevParentType == "modifier" {
+			@at-root #{&} #{$selector} {
+				@content;
+			}
+		}
+		@else {
+			@at-root #{$selector} {
+				@content;
+			}
+			$_prevParentSelector: #{&};
+			$_prevParentType: "element";
+		}
+		$_prevElemName: #{&};
+		$_prevSelector: $selector;
+		$_prevType: "element";
+	}
+}
+
+//modifiers get appended with "--" and the $name
+@mixin m($name) {
+
+	//@debug "********************************>Modifier: " + $name;
+	//@debug "$_prevType: " + $_prevType + "    $_prevParentSelector: " + $_prevParentSelector;
+
+	//$selector: #{&}--#{$name};
+	//$selector: "#{&}" + ".is-" + "#{$name}";
+	$selector: #{&}--#{$name};
+	$_prevModifierName: $name;
+	$_prevSelector: $selector;
+	$_prevParentSelector: #{&};
+	$_prevParentType: "modifier";
+	$_prevType: "modifier";
+	@at-root #{$selector} {
+		@content;
+	}
+}

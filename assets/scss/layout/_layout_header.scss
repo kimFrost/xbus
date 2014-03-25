@@ -1,0 +1,10 @@
+
+$_blockName: 'l__header';
+
+@include block($_blockName) {
+	@include contentArea();
+	@include m(ripped) {
+		@include containerArea();
+
+	}
+}

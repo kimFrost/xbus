@@ -1,0 +1,23 @@
+
+/* Global mediaQueries mixin */
+
+@mixin mediaQueries($type) {
+	@if $useAdaptive == true {
+		@for $i from 1 through length($mediaQueries) {
+			$dimension : nth($mediaQueries,$i);
+			$dimensionType : nth($dimension,1);
+			@if $dimensionType == $type {
+				@if length($dimension) == 3 {
+					@media all and (min-width: nth($dimension,2)) and (max-width: nth($dimension,3)) {
+						@content;
+					}
+				}
+				@else if length($dimension) == 2 {
+					@media all and (min-width: nth($dimension,2)) {
+						@content;
+					}
+				}
+			}
+		}
+	}
+}
